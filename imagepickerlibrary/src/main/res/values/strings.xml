@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Image Picker Library</string>
+    <string name="select_source">Select source</string>
+    <string name="canceling">Canceling</string>
+</resources>
