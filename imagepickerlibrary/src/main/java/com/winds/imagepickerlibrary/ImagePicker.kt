@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Parcelable
 import android.provider.MediaStore
@@ -19,7 +20,11 @@ import java.io.File
 import java.io.IOException
 import java.util.*
 
-class ImagePicker(private var activity: Activity, private val fragment: Fragment?=null, val listener: OnImagePickedListener) : ImagePickerContract {
+class ImagePicker(
+    private var activity: Activity,
+    private val fragment: Fragment? = null,
+    val listener: OnImagePickedListener
+) : ImagePickerContract {
 
 
     companion object {
@@ -34,19 +39,27 @@ class ImagePicker(private var activity: Activity, private val fragment: Fragment
     private var aspectRatioY = 0
     private var withCrop = false
     private var imageFile: File? = null
-    private var setFixAspectRatio=false
-    private var setAutoZoomEnabled=false
+    private var imagesUri: Uri? = null
+    private var setFixAspectRatio = false
+    private var setAutoZoomEnabled = false
 
-    override fun setWithImageCrop(withCrop: Boolean, aspectRatioX: Int, aspectRatioY: Int): ImagePicker {
-        this.withCrop=withCrop
+    override fun setWithImageCrop(
+        withCrop: Boolean,
+        aspectRatioX: Int,
+        aspectRatioY: Int
+    ): ImagePicker {
+        this.withCrop = withCrop
         this.aspectRatioX = aspectRatioX
         this.aspectRatioY = aspectRatioY
         return this
     }
 
-    override fun setFixAspectRatio(fixAspectRatio: Boolean, autoZoomEnabled: Boolean): ImagePicker? {
-        this.setFixAspectRatio=fixAspectRatio
-        this.setAutoZoomEnabled=autoZoomEnabled
+    override fun setFixAspectRatio(
+        fixAspectRatio: Boolean,
+        autoZoomEnabled: Boolean
+    ): ImagePicker? {
+        this.setFixAspectRatio = fixAspectRatio
+        this.setAutoZoomEnabled = autoZoomEnabled
         return this
     }
 
@@ -94,21 +107,30 @@ class ImagePicker(private var activity: Activity, private val fragment: Fragment
     }
 
     override fun getImageFile(): File? {
-        return imageFile
+        imageFile = File(imagesUri?.getBitmap(activity)?.getImageUri(activity)?.path!!)
+        return (imageFile)
+    }
+
+    override fun getFileSize(): String? {
+        return checkFileSize(imagesUri?.getBitmap(activity)?.getImageUri(activity))
+    }
+
+    override fun getBitmap(): Bitmap? {
+        return imagesUri?.getBitmap(activity)
     }
 
 
     override fun handlePermission(requestCode: Int, grantResults: IntArray?) {
         Log.d(TAG, "handlePermission: $requestCode")
         if (requestCode == CAMERA_CAPTURE_PERMISSIONS_REQUEST_CODE_WITH_CAMERA) {
-            if (grantResults!!.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults!!.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults.isNotEmpty() && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 startImagePickerActivity(true)
             } else {
                 Toast.makeText(activity, R.string.canceling, Toast.LENGTH_SHORT).show()
             }
         }
         if (requestCode == CAMERA_CAPTURE_PERMISSIONS_REQUEST_CODE_WITHOUT_CAMERA) {
-            if (grantResults!!.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults!!.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults.isNotEmpty() && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 startImagePickerActivity(false)
             } else {
                 Toast.makeText(activity, R.string.canceling, Toast.LENGTH_SHORT).show()
@@ -152,7 +174,8 @@ class ImagePicker(private var activity: Activity, private val fragment: Fragment
         get() = if (withCrop) {
             arrayOf(
                 Manifest.permission.CAMERA,
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
         } else {
             arrayOf(Manifest.permission.CAMERA)
@@ -167,7 +190,13 @@ class ImagePicker(private var activity: Activity, private val fragment: Fragment
                     || ContextCompat.checkSelfPermission(
                 activity,
                 Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED)
+            ) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+
+                    )
         } else {
             ContextCompat.checkSelfPermission(
                 activity,
@@ -181,7 +210,8 @@ class ImagePicker(private var activity: Activity, private val fragment: Fragment
         val result = CropImage.getActivityResult(data)
         val croppedImageUri = result?.uri
         deletePreviouslyCroppedFiles(croppedImageUri!!)
-        imageFile = File(croppedImageUri.path!!)
+        imagesUri = croppedImageUri
+        //  imageFile = File(croppedImageUri.path!!)
         listener.onImagePicked(croppedImageUri)
     }
 
@@ -206,7 +236,8 @@ class ImagePicker(private var activity: Activity, private val fragment: Fragment
                 //.setAspectRatio(aspectRatioX, aspectRatioY)
                 .start(activity)
         } else {
-            imageFile = File(imageUri.path!!)
+            imagesUri = imageUri
+            //    imageFile = File(imageUri.path!!)
             listener.onImagePicked(imageUri)
         }
     }
@@ -293,10 +324,7 @@ class ImagePicker(private var activity: Activity, private val fragment: Fragment
         }
 
     private fun getCameraFileUri(activity: Activity): Uri {
-        val imagePath = File(
-            activity.filesDir,
-            "images/$currentCameraFileName"
-        )
+        val imagePath = File(activity.filesDir, "images/$currentCameraFileName")
         return Uri.fromFile(imagePath)
     }
 

@@ -1,6 +1,7 @@
 package com.winds.imagepickerlibrary
 
 import android.content.Intent
+import android.graphics.Bitmap
 import java.io.File
 
 interface ImagePickerContract {
@@ -14,6 +15,8 @@ interface ImagePickerContract {
 
     fun openCamera()
     fun getImageFile(): File?
+    fun getFileSize(): String?
+    fun getBitmap(): Bitmap?
     fun handlePermission(requestCode: Int, grantResults: IntArray?)
     fun handleActivityResult(resultCode: Int, requestCode: Int, data: Intent?)
 }

@@ -23,9 +23,11 @@ class MainActivity : AppCompatActivity() {
         btnClick.setOnClickListener {
             imagePicker = ImagePicker(this, null, object : OnImagePickedListener {
                 override fun onImagePicked(imageUri: Uri?) {
+                    image.setImageBitmap(imagePicker.getBitmap())
                     filePath = imagePicker.getImageFile()
-                    Log.d("TAGS", "FilePath $filePath")
-                    image.setImageURI(imageUri)
+                    Log.d("TAGS", "imageUri $filePath")
+                    Log.d("TAGS", "File Size ${imagePicker.getFileSize()}")
+
                 }
             }).setWithImageCrop(true)
             imagePicker.choosePicture(true)

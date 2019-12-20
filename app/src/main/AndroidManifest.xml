@@ -3,7 +3,6 @@
     package="com.winds.smartimagepicker">
 
 
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
