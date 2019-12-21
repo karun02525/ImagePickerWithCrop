@@ -1,4 +1,4 @@
-package com.winds.smartimagepicker
+package com.winds.smartimagepicker.activity
 
 import android.content.Intent
 import android.net.Uri
@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import com.winds.imagepickerlibrary.ImagePicker
 import com.winds.imagepickerlibrary.OnImagePickedListener
+import com.winds.smartimagepicker.R
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 

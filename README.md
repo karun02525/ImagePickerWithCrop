@@ -50,7 +50,20 @@ in Kotlin
                     imagePicker.handlePermission(requestCode, grantResults)
                 }
 
-
+            in fragment ///
+          
+            don't MainActivrty put on 
+            
+               override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+                    super.onActivityResult(requestCode, resultCode, data)
+                    val fragments = supportFragmentManager.fragments
+                    if (fragments != null) {
+                        for (f in fragments) {
+                            (f as? ImagePickerFragment)?.onActivityResult(requestCode, resultCode, data)
+                        }
+                    }
+                } 
+            
 
 
 ```

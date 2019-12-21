@@ -17,12 +17,12 @@
         android:layout_height="200dp"
         android:scaleType="centerCrop"/>
 
-      <Button
-          android:id="@+id/btnClick"
-          android:layout_margin="40dp"
-          android:text="Upload"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/btnClick"
+        android:layout_margin="40dp"
+        android:text="Upload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 
 
