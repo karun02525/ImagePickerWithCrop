@@ -5,6 +5,8 @@ library to pick images from gallery or camera and crop them if needed.
 |:---:|
 |![](pic/pic.PNG)|
 
+[![](https://jitpack.io/v/kaju02525/ImagePickerWithCrop.svg)](https://jitpack.io/#kaju02525/ImagePickerWithCrop)
+
 
 
 ## Usage
