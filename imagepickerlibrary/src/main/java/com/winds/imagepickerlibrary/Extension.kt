@@ -3,12 +3,13 @@ package com.winds.imagepickerlibrary
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
-import android.media.ExifInterface
 import android.net.Uri
-import android.provider.MediaStore
+import android.os.Environment
 import android.provider.MediaStore.Images
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.text.DecimalFormat
 
 
@@ -16,9 +17,8 @@ private val format: DecimalFormat = DecimalFormat("#.##")
 private const val MiB = 1024 * 1024.toLong()
 private const val KiB: Long = 1024
 
-fun checkFileSize(uri: Uri?): String? {
-    val f = File(uri?.path!!)
-    val length: Long = f.length()
+fun File?.checkFileSize(): String? {
+    val length = this?.length()!!.toDouble()
     if (length > MiB) {
         return format.format(length / MiB).toString() + " MB"
     }
@@ -28,12 +28,12 @@ fun checkFileSize(uri: Uri?): String? {
 }
 
 
-fun Uri.getBitmap(context: Context?): Bitmap {
-    val bitmap = MediaStore.Images.Media.getBitmap(context!!.contentResolver, this)
-    return getResizedBitmap(rotateImageIfRequired(bitmap, this), 300)
+fun Uri.getURI(context: Context?,fileSize: Int): Bitmap {
+    val bitmap = Images.Media.getBitmap(context!!.contentResolver, this)
+    return getResizedBitmap(bitmap, fileSize)
 }
 
-private fun getResizedBitmap(image: Bitmap, maxSize: Int): Bitmap {
+ fun getResizedBitmap(image: Bitmap, maxSize: Int): Bitmap {
     var width = image.width
     var height = image.height
 
@@ -48,8 +48,24 @@ private fun getResizedBitmap(image: Bitmap, maxSize: Int): Bitmap {
     return Bitmap.createScaledBitmap(image, width, height, true)
 }
 
+fun Bitmap.onConvertBitmapToFile(): File {
+    val imgFile = File(Environment.getExternalStorageDirectory(), System.currentTimeMillis().toString() + ".jpg")
+    val bytes = ByteArrayOutputStream()
+    this.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
+    val fo: FileOutputStream
+    try {
+        imgFile.createNewFile()
+        fo = FileOutputStream(imgFile)
+        fo.write(bytes.toByteArray())
+        fo.close()
+    } catch (e: IOException) {
+        e.printStackTrace()
+    }
+    return imgFile
+}
 
-fun rotateImageIfRequired(img: Bitmap, selectedImage: Uri): Bitmap {
+
+/*fun rotateImageIfRequired(img: Bitmap, selectedImage: Uri): Bitmap {
 
     val ei = ExifInterface(selectedImage.path)
     val orientation =
@@ -60,8 +76,9 @@ fun rotateImageIfRequired(img: Bitmap, selectedImage: Uri): Bitmap {
         ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(img, 270)
         else -> img
     }
-}
+}*/
 
+/*
 private fun rotateImage(img: Bitmap, degree: Int): Bitmap {
     val matrix = Matrix()
     matrix.postRotate(degree.toFloat())
@@ -76,3 +93,4 @@ fun Bitmap.getImageUri(inContext: Context): Uri? {
     val path = Images.Media.insertImage(inContext.contentResolver, this, "Title", null)
     return Uri.parse(path)
 }
+*/

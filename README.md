@@ -21,14 +21,35 @@ in Kotlin
 
  imagePicker = ImagePicker(this, null, object : OnImagePickedListener {
                 override fun onImagePicked(imageUri: Uri?) {
-                    filePath = imagePicker.getImageFile()
-                    Log.d("TAGS", "FilePath $filePath")  // this file path 
-                    image.setImageURI(imageUri)
+
+                   imagePicker.setFileSize(500) //setSize/Resize
+                  val filePath = imagePicker.getImageFile()
+                  val bitmap = imagePicker.getBitmap()
+                  val fileSize = imagePicker.getFileSize()
+                  val imageUri = imageUri
+
+                   image.setImageURI(imageUri)
+                  // image.setImageBitmap(bitmap)
                 }
-            }).setWithImageCrop(true)
+            }).setWithImageCrop(true) //this is optional you need crop image just user this method
             
             // open dailog
             imagePicker.choosePicture(true)
+
+
+
+             override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+                    super.onActivityResult(requestCode, resultCode, data)
+                    imagePicker.handleActivityResult(resultCode, requestCode, data)
+                }
+
+                override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
+                    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+                    imagePicker.handlePermission(requestCode, grantResults)
+                }
+
+
+
 
 ```
 
@@ -43,6 +64,10 @@ imagePicker = new ImagePicker(this, /* activity non null*/
                         1 /*aspect ratio x*/
                         1 /*aspect ratio y*/);
 ```
+
+
+
+
 
 ### If calling from Activity
 Override Activity's methods to delegate permissions to ImagePicker and resulting image

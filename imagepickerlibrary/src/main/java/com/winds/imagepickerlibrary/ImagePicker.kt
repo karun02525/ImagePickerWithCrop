@@ -37,20 +37,22 @@ class ImagePicker(
 
     private var aspectRatioX = 0
     private var aspectRatioY = 0
+    private var fileSize = 500
     private var withCrop = false
     private var imageFile: File? = null
     private var imagesUri: Uri? = null
     private var setFixAspectRatio = false
     private var setAutoZoomEnabled = false
 
-    override fun setWithImageCrop(
-        withCrop: Boolean,
-        aspectRatioX: Int,
-        aspectRatioY: Int
-    ): ImagePicker {
-        this.withCrop = withCrop
+    override fun setWithImageCrop(aspectRatioX: Int, aspectRatioY: Int): ImagePicker {
+        withCrop = true
         this.aspectRatioX = aspectRatioX
         this.aspectRatioY = aspectRatioY
+        return this
+    }
+
+    override fun setFileSize(fileSize: Int): ImagePicker {
+        this.fileSize = fileSize
         return this
     }
 
@@ -107,16 +109,15 @@ class ImagePicker(
     }
 
     override fun getImageFile(): File? {
-        imageFile = File(imagesUri?.getBitmap(activity)?.getImageUri(activity)?.path!!)
-        return (imageFile)
+        return getBitmap()?.onConvertBitmapToFile()
     }
 
     override fun getFileSize(): String? {
-        return checkFileSize(imagesUri?.getBitmap(activity)?.getImageUri(activity))
+        return getImageFile()?.checkFileSize()
     }
 
     override fun getBitmap(): Bitmap? {
-        return imagesUri?.getBitmap(activity)
+        return imagesUri?.getURI(activity, fileSize)
     }
 
 
@@ -211,7 +212,7 @@ class ImagePicker(
         val croppedImageUri = result?.uri
         deletePreviouslyCroppedFiles(croppedImageUri!!)
         imagesUri = croppedImageUri
-        //  imageFile = File(croppedImageUri.path!!)
+        imageFile = File(croppedImageUri.path!!)
         listener.onImagePicked(croppedImageUri)
     }
 
@@ -234,10 +235,11 @@ class ImagePicker(
                 .setAutoZoomEnabled(setAutoZoomEnabled)
                 .setFixAspectRatio(setFixAspectRatio)
                 //.setAspectRatio(aspectRatioX, aspectRatioY)
+                //  .setRequestedSize(12,34)
                 .start(activity)
         } else {
             imagesUri = imageUri
-            //    imageFile = File(imageUri.path!!)
+            imageFile = File(imageUri.path!!)
             listener.onImagePicked(imageUri)
         }
     }
@@ -256,10 +258,7 @@ class ImagePicker(
     }
 
     private fun deletePreviouslyCroppedFiles(currentCropImageUri: Uri) {
-        Log.d(
-            TAG,
-            "deletePreviouslyCroppedFiles: $currentCropImageUri"
-        )
+        Log.d(TAG, "deletePreviouslyCroppedFiles: $currentCropImageUri")
         val croppedImageName = currentCropImageUri.lastPathSegment
         val imagePath = activity.cacheDir
         Log.d(
@@ -267,20 +266,11 @@ class ImagePicker(
             "deletePreviouslyCroppedFiles: " + imagePath.exists() + " " + imagePath.isDirectory
         )
         if (imagePath.exists() && imagePath.isDirectory) {
-            Log.d(
-                TAG,
-                "deletePreviouslyCroppedFiles: $imagePath"
-            )
-            Log.d(
-                TAG,
-                "deletePreviouslyCroppedFiles: " + imagePath.listFiles()?.size
-            )
+            Log.d(TAG, "deletePreviouslyCroppedFiles: $imagePath")
+            Log.d(TAG, "deletePreviouslyCroppedFiles: " + imagePath.listFiles()?.size)
             if (imagePath.listFiles()!!.isNotEmpty()) {
                 for (file in imagePath.listFiles()!!) {
-                    Log.d(
-                        TAG,
-                        "deletePreviouslyCroppedFiles: " + file.name
-                    )
+                    Log.d(TAG, "deletePreviouslyCroppedFiles: " + file.name)
                     if (file.name != croppedImageName) {
                         file.delete()
                     }
@@ -291,29 +281,20 @@ class ImagePicker(
 
     private val cameraIntent: Intent
         get() {
-            currentCameraFileName =
-                "outputImage" + System.currentTimeMillis() + ".jpg"
+            currentCameraFileName = "outputImage" + System.currentTimeMillis() + ".jpg"
             val imagesDir = File(activity.filesDir, "images")
             imagesDir.mkdirs()
-            val file =
-                File(imagesDir, currentCameraFileName)
+            val file = File(imagesDir, currentCameraFileName)
             try {
                 file.createNewFile()
             } catch (e: IOException) {
                 Log.d(TAG, "openCamera: coudln't crate ")
                 e.printStackTrace()
             }
-            Log.d(
-                TAG,
-                "openCamera: file exists " + file.exists() + " " + file.toURI().toString()
-            )
+            Log.d(TAG, "openCamera: file exists " + file.exists() + " " + file.toURI().toString())
             val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             val authority = activity.packageName + ".smart-image-picket-providers"
-            val outputUri = FileProvider.getUriForFile(
-                activity.applicationContext,
-                authority,
-                file
-            )
+            val outputUri = FileProvider.getUriForFile(activity.applicationContext, authority, file)
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
             activity.grantUriPermission(
                 "com.google.android.GoogleCamera",
