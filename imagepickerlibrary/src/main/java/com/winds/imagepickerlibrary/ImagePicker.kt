@@ -296,9 +296,7 @@ class ImagePicker(
             val authority = activity.packageName + ".smart-image-picket-providers"
             val outputUri = FileProvider.getUriForFile(activity.applicationContext, authority, file)
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
-            activity.grantUriPermission(
-                "com.google.android.GoogleCamera",
-                outputUri,
+            activity.grantUriPermission("com.google.android.GoogleCamera", outputUri,
                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
             )
             return cameraIntent
@@ -312,15 +310,22 @@ class ImagePicker(
     private fun startImagePickerActivity(includeCamera: Boolean) {
         val allIntents: MutableList<Intent> = ArrayList()
         val packageManager = activity.packageManager
-        var galleryIntents =
-            CropImage.getGalleryIntents(packageManager, Intent.ACTION_GET_CONTENT, false)
+        var galleryIntents = CropImage.getGalleryIntents(packageManager, Intent.ACTION_GET_CONTENT, false)
         if (galleryIntents.size == 0) { // if no intents found for get-content try pick intent action (Huawei P9).
             galleryIntents = CropImage.getGalleryIntents(packageManager, Intent.ACTION_PICK, false)
         }
         if (includeCamera) {
             allIntents.add(cameraIntent)
         }
-        allIntents.addAll(galleryIntents)
+          for(i in galleryIntents.indices) {
+              if(i==1){
+                  allIntents.add(galleryIntents[i])
+              }
+          }
+
+
+        //  allIntents.addAll(galleryIntents) //if you want multiple chooser this enable this line
+
         val target: Intent
         if (allIntents.isEmpty()) {
             target = Intent()

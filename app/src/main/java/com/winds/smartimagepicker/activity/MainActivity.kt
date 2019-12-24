@@ -1,10 +1,12 @@
 package com.winds.smartimagepicker.activity
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.widget.Toast
 import com.winds.imagepickerlibrary.ImagePicker
 import com.winds.imagepickerlibrary.OnImagePickedListener
 import com.winds.smartimagepicker.R
@@ -14,8 +16,16 @@ import java.io.File
 class MainActivity : AppCompatActivity() {
 
     private var filePath: File? = null
-    private lateinit var mContext: MainActivity
     private lateinit var imagePicker: ImagePicker
+    
+    private lateinit var mContext: Context
+
+    companion object {
+        private const val TAG = "MainActivity"
+    }
+
+  
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mContext = this
@@ -28,26 +38,35 @@ class MainActivity : AppCompatActivity() {
                     imagePicker.setFileSize(700)
                     image.setImageBitmap(imagePicker.getBitmap())
                     filePath = imagePicker.getImageFile()
-                    Log.d("TAGS", "filePath $filePath")
-                    Log.d("TAGS", "imageUri $imageUri")
-                    Log.d("TAGS", "File Size ${imagePicker.getFileSize()}")
+                    Log.d(TAG, "filePath $filePath")
+                    Log.d(TAG, "imageUri $imageUri")
+                    Log.d(TAG, "File Size ${imagePicker.getFileSize()}")
 
                 }
             }).setWithImageCrop()
             imagePicker.choosePicture(true)
 
+
+
         }
+
+
+
+
     }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         imagePicker.handleActivityResult(resultCode, requestCode, data)
+
+
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         imagePicker.handlePermission(requestCode, grantResults)
     }
+
 
 }
