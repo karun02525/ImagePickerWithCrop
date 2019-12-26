@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.os.Parcelable
 import android.provider.MediaStore
 import android.support.v4.app.Fragment
@@ -19,6 +20,7 @@ import com.theartofdev.edmodo.cropper.CropImageView
 import java.io.File
 import java.io.IOException
 import java.util.*
+
 
 class ImagePicker(
     private var activity: Activity,
@@ -317,8 +319,13 @@ class ImagePicker(
         if (includeCamera) {
             allIntents.add(cameraIntent)
         }
+
+
           for(i in galleryIntents.indices) {
-              if(i==1){
+              if(i==1 && getDeviceName()?.contains("OPPO ")!!){
+                  allIntents.add(galleryIntents[i])
+              }
+              if(i==2 && !getDeviceName()?.contains("OPPO ")!!){
                   allIntents.add(galleryIntents[i])
               }
           }
@@ -340,6 +347,26 @@ class ImagePicker(
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, allIntents.toTypedArray<Parcelable>())
         activity.startActivityForResult(chooserIntent, CropImage.PICK_IMAGE_CHOOSER_REQUEST_CODE)
     }
+  private  fun getDeviceName(): String? {
+        val manufacturer = Build.MANUFACTURER
+        val model = Build.MODEL
+        return if (model.startsWith(manufacturer)) {
+            capitalize(model)
+        } else {
+            capitalize(manufacturer).toString() + " " + model
+        }
+    }
 
+    private fun capitalize(s: String?): String? {
+        if (s == null || s.isEmpty()) {
+            return ""
+        }
+        val first = s[0]
+        return if (Character.isUpperCase(first)) {
+            s
+        } else {
+            Character.toUpperCase(first).toString() + s.substring(1)
+        }
+    }
 
 }
