@@ -325,6 +325,8 @@ class ImagePicker(
               if(galleryIntents[i].component?.packageName=="com.google.android.apps.photos" &&
                   galleryIntents[i].component?.className=="com.google.android.apps.photos.picker.external.ExternalPickerActivity"){
                   allIntents.add(galleryIntents[i])
+              }else if(galleryIntents[i].component?.packageName?.contains("gallery")!!){
+                  allIntents.add(galleryIntents[i])
               }else{
                   Log.d(TAG, "startImagePickerActivity: $i")
               }
