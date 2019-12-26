@@ -312,9 +312,9 @@ class ImagePicker(
     private fun startImagePickerActivity(includeCamera: Boolean) {
         val allIntents: MutableList<Intent> = ArrayList()
         val packageManager = activity.packageManager
-        var galleryIntents = CropImage.getGalleryIntents(packageManager, Intent.ACTION_GET_CONTENT, false)
+        var galleryIntents = CropImage.getGalleryIntents(packageManager, Intent.ACTION_GET_CONTENT, true)
         if (galleryIntents.size == 0) { // if no intents found for get-content try pick intent action (Huawei P9).
-            galleryIntents = CropImage.getGalleryIntents(packageManager, Intent.ACTION_PICK, false)
+            galleryIntents = CropImage.getGalleryIntents(packageManager, Intent.ACTION_PICK, true)
         }
         if (includeCamera) {
             allIntents.add(cameraIntent)
@@ -322,11 +322,11 @@ class ImagePicker(
 
 
           for(i in galleryIntents.indices) {
-              if(i==1 && getDeviceName()?.contains("OPPO ")!!){
+              if(galleryIntents[i].component?.packageName=="com.google.android.apps.photos" &&
+                  galleryIntents[i].component?.className=="com.google.android.apps.photos.picker.external.ExternalPickerActivity"){
                   allIntents.add(galleryIntents[i])
-              }
-              if(i==2 && !getDeviceName()?.contains("OPPO ")!!){
-                  allIntents.add(galleryIntents[i])
+              }else{
+                  Log.d(TAG, "startImagePickerActivity: $i")
               }
           }
 
