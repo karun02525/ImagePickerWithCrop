@@ -212,9 +212,9 @@ class ImagePicker(
         Log.d(TAG, "handleCroppedImageResult: ")
         val result = CropImage.getActivityResult(data)
         val croppedImageUri = result?.uri
-        deletePreviouslyCroppedFiles(croppedImageUri!!)
+       // deletePreviouslyCroppedFiles(croppedImageUri!!)
         imagesUri = croppedImageUri
-        imageFile = File(croppedImageUri.path!!)
+        imageFile = File(croppedImageUri?.path!!)
         listener.onImagePicked(croppedImageUri)
     }
 
